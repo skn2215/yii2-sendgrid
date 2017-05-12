@@ -29,6 +29,20 @@ or add
 
 to the require section of your application's `composer.json` file.
 
+Then configure your `mailer` component in your `main-local.php` (advanced) or `web.php` (basic) like so:
+
+    'mailer' => [
+        'class' => 'wadeshuler\sendgrid\Mailer',
+        'viewPath' => '@common/mail',
+        // send all mails to a file by default. You have to set
+        // 'useFileTransport' to false and configure a transport
+        // for the mailer to send real emails.
+        'useFileTransport' => false,
+        'apiKey' => '[YOUR_SENDGRID_API_KEY]',
+    ],
+
+Do not forget to replace `apiKey` with your SendGrid API key. It must have permissions to send emails.
+
 ## Usage
 
 ### Single Mailing
