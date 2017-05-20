@@ -3,14 +3,6 @@ Yii2 Mailer extension for SendGrid with batch mailing support. This extension is
 
 ---
 
-## Known Issues
-
- - `addSection()` - There is currently an issue with the SendGrid API where sections are not working.
- - `setSendAt()` - There is currently an issue with the SendGrid API where using `send_at` where the time shows the queued time not the actual time that the email was sent.
- - `setReplyTo()` - There is currently an issue with the SendGrid PHP API where the ReplyTo address only accepts the email address as a string. So you can't set a name.
-
----
-
 ## Installation
 
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
@@ -84,10 +76,10 @@ If you want to send to multiple recipients, you need to use the below method to 
 
     $mailer = Yii::$app->mailer;
     //$batchId = Yii::$app->mailer->createBatchId();
+    //$sendTime = time() + (5 * 60);      // 5 minutes from now
 
     foreach (User::find()->select(['id', 'username', 'email'])->batch(500) as $users)
     {
-        //$sendTime = time() + (5 * 60);      // 5 minutes from now
 
         $message = $mailer->compose()
             ->setFrom(['alerts@example.com' => 'Alerts'])
@@ -141,6 +133,16 @@ If you want to send to multiple recipients, you need to use the below method to 
     }
 
 **NOTE:** SendGrid supports a max of 1,000 recipients. This is a total of the to, bcc, and cc addresses. I recommend using `500` for the batch size. This should be large enough to process thousands of emails efficiently without risking getting errors by accidentally breaking the 1,000 recipients rule. If you are not using any bcc or cc addresses, you *could* raise the batch number a little higher. Theoretically, you should be able to do 1,000 but I would probably max at 950 to leave some wiggle room.
+
+---
+
+## Known Issues
+
+ - `addSection()` - There is currently an issue with the SendGrid API where sections are not working.
+ - `setSendAt()` - There is currently an issue with the SendGrid API where using `send_at` where the time shows the queued time not the actual time that the email was sent.
+ - `setReplyTo()` - There is currently an issue with the SendGrid PHP API where the ReplyTo address only accepts the email address as a string. So you can't set a name.
+
+---
 
 ## TODO
 
