@@ -2,7 +2,6 @@
 namespace wadeshuler\sendgrid;
 
 use Yii;
-use yii\base\ErrorException;
 use yii\base\InvalidConfigException;
 use yii\helpers\Json;
 use yii\mail\BaseMailer;
@@ -131,6 +130,25 @@ class Mailer extends BaseMailer
         $this->_errors[] = $error;
     }
 
+    public function parseErrorCode($code)
+    {
+        static $key = [
+            200 => 'Your message is valid, but it is not queued to be delivered. (Sandbox)',
+            202 => 'Your message is both valid, and queued to be delivered.',
+            400 => 'Bad Request!',
+            401 => 'You do not have authorization to make the request! Your API Key is probably missing or incorrect!',
+            403 => 'Forbidden!',
+            404 => 'The resource you tried to locate could not be found or does not exist.',
+            405 => 'Method Not Allowed!',
+            413 => 'The JSON payload you have included in your request is too large.',
+            415 => 'Unsupported Media Type',
+            429 => 'The number of requests you have made exceeds SendGrid’s rate limitations.',
+            500 => 'An error occurred on a SendGrid server.',
+            503 => 'The SendGrid v3 Web API is not available.',
+        ];
+        return isset($key[$code]) ? $key[$code] : "$code: An unknown error was encountered!";
+    }
+
     /**
      * @inheritdoc
      */
@@ -140,7 +158,7 @@ class Mailer extends BaseMailer
             $payload = $message->buildMessage();
 
             if ( ! $payload ) {
-                throw new ErrorException('Error building message. Unable to send!');
+                throw new \Exception('Error building message. Unable to send!');
             }
 
             $response = $this->getSendGrid()->client->mail()->send()->post($payload);
@@ -149,12 +167,12 @@ class Mailer extends BaseMailer
             $this->addRawResponse($formatResponse);
 
             if ( ($response->statusCode() !== 202) && ($response->statusCode() !== 200) ) {
-                throw new ErrorException($response->body());
+                throw new \Exception( $this->parseErrorCode($response->statusCode()) );
             }
 
             return true;
 
-        } catch ( ErrorException $e ) {
+        } catch ( \Exception $e ) {
 
             Yii::error($e->getMessage(), self::LOGNAME);
             $this->addError($e->getMessage());

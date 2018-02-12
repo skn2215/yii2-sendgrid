@@ -441,6 +441,14 @@ class Message extends BaseMessage
     }
 
     /**
+     * @return array Get array of errors
+     */
+    public function getErrors()
+    {
+        return $this->mailer->getErrors();
+    }
+
+    /**
      * Builds the SendGrid message payload.
      *
      * @return \SendGrid\Mail instance or false on error
